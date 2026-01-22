@@ -19,7 +19,6 @@ FlashToken is a **tokenizer-side prefix caching** library for low-latency LLM sy
 FlashToken targets exactly these "long prefix reuse / append-only history" patterns.
 
 ## How it works (principle & architecture)
-<img width="2752" height="1536" alt="Gemini_Generated_Image_6ac5y46ac5y46ac5" src="https://github.com/user-attachments/assets/2ce2fa00-656c-4ae8-9889-05304287cc82" />
 
 High level:
 
