@@ -1,6 +1,6 @@
 # Integration Notes
 
-FlashToken does not modify model weights and is framework-agnostic. You integrate it at the “text → token IDs” boundary.
+FlashToken does not modify model weights and is framework-agnostic. Integrate it at the "text -> token IDs" boundary.
 
 ## 1) Fixed prefix reuse (system prompt caching)
 
@@ -18,10 +18,13 @@ Good for:
 
 ## 2) Append-only chat (KV-cache aligned delta)
 
-If your inference stack maintains a KV-cache and each turn only appends new text to the prompt, use the delta output:
+If your inference stack maintains a KV-cache and each turn only appends new text to the prompt:
 
-- `delta = cache.append_ordinary(new_text)`
-- rollback `delta.rollback_tokens`
-- append `delta.tokens_to_append`
+1. Keep a cache: `cache = AppendOnlyPieceTokenCache(enc, initial_text, backtrack_pieces=2)`
+2. For each appended chunk:
+   - `delta = cache.append_ordinary(new_text)`
+   - rollback `delta.rollback_tokens`
+   - append `delta.tokens_to_append`
 
-This avoids wasting work on re-tokenizing (and re-aligning) the entire growing history every turn.
+If you do not keep a KV-cache, you can simply use `cache.tokens` as the full token sequence after each append.
+

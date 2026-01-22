@@ -1,14 +1,14 @@
 # FlashToken Benchmark
 
-This directory provides **paper-style, reproducible evaluation**:
+This directory provides paper-style, reproducible evaluation:
 
-- correctness (token-by-token equality)
-- performance (latency / throughput / “new work” reduction)
+- correctness (token-by-token equality with `tiktoken.encode_ordinary`)
+- performance (latency / throughput / encoded-token reduction)
 - automated plots and a human-readable summary
 
 ## One-click run (Windows)
 
-From `FlashToken_EN/benchmark/`:
+From `benchmark/`:
 
 - `run_benchmark.cmd`
 
@@ -32,5 +32,6 @@ run_benchmark.cmd --suite standard --encoding cl100k_base --repeats 3
 
 - `verify_mismatches`: number of token mismatches (expected to be 0)
 - `speedup`: `baseline_ms / cached_ms` (higher is better)
-- `cached_encoded_tokens`: how many tokens were actually newly encoded (lower is better)
+- `cached_encoded_tokens`: how many tokens were newly encoded (lower is better)
 - `rollback_tokens_max`: max rollback per append step (lower is better)
+
