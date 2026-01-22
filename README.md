@@ -2,7 +2,7 @@
 
 FlashToken is a **tokenizer-side prefix caching** library for low-latency LLM systems. It speeds up tokenization without changing model weights: when prompts share long prefixes (system prompts, templates, conversation history), FlashToken avoids re-tokenizing the same text over and over.
 
-## Performance at a glance (verified)
+## Performance at a glance
 
 - Correctness: `mismatches = 0` (token-by-token equality with `tiktoken.encode_ordinary`).
 - Speed (median, Windows 10 / Python 3.12 / `cl100k_base`, standard suite, `repeats=3`):
@@ -10,23 +10,13 @@ FlashToken is a **tokenizer-side prefix caching** library for low-latency LLM sy
   - Append-only chat (mixed, 400 turns): `2203.70 ms -> 58.51 ms` (`37.66x`).
 - Details + raw outputs: see [Benchmark results](#benchmark-results-speed--correctness) and [`summary.md`](assets/benchmark/standard_win10_py312/summary.md) / [`results.json`](assets/benchmark/standard_win10_py312/results.json).
 
-## Why it matters (real-world pain points)
+## Why it matters
 
 - **Real-time AI voice calls**: "dead air" often comes from extra CPU work before the first token is generated. Re-tokenizing long prompts is a common hidden cost.
 - **IDE copilots that feel half a beat late**: every completion/chat round may carry a long system prompt and project context; tokenizing from scratch adds latency and burns CPU.
 - **Mobile / on-device chat that heats up over time**: longer histories mean more repeated tokenization per turn, increasing CPU time, battery drain, and thermal throttling.
 
 FlashToken targets exactly these "long prefix reuse / append-only history" patterns.
-
-## What you get
-
-FlashToken provides two strategies. Both preserve **exact token IDs** (aligned with `tiktoken.encode_ordinary`) and can be benchmarked without loading any LLM:
-
-1) `FixedPrefixTokenCache`  
-   Best for a fixed system prompt / template reused across many requests.
-
-2) `AppendOnlyPieceTokenCache` (piece rollback)  
-   Best for append-only conversation growth; returns `(rollback_tokens, tokens_to_append)` to align with KV-cache workflows.
 
 ## How it works (principle & architecture)
 
@@ -42,6 +32,16 @@ text prompt -> FlashToken (tokenizer cache) -> token IDs -> LLM inference
 - **AppendOnlyPieceTokenCache**: for append-only prompts, it rolls back and re-encodes only the last few regex "pieces" (`backtrack_pieces`), returning a delta that's KV-cache friendly.
 - Integration point: plug it in at the `text -> token IDs` boundary (before model inference). No model changes required.
 - More details: `docs/ALGORITHM.md` and `docs/INTEGRATION.md`.
+
+## What you get
+
+FlashToken provides two strategies. Both preserve **exact token IDs** (aligned with `tiktoken.encode_ordinary`) and can be benchmarked without loading any LLM:
+
+1) `FixedPrefixTokenCache`  
+   Best for a fixed system prompt / template reused across many requests.
+
+2) `AppendOnlyPieceTokenCache` (piece rollback)  
+   Best for append-only conversation growth; returns `(rollback_tokens, tokens_to_append)` to align with KV-cache workflows.
 
 ## Install
 
