@@ -10,11 +10,13 @@ FlashToken is a **tokenizer-side prefix caching** library for low-latency LLM sy
   - Append-only chat (mixed, 400 turns): `2203.70 ms -> 58.51 ms` (`37.66x`).
 - Details + raw outputs: see [Benchmark results](#benchmark-results-speed--correctness) and [`summary.md`](assets/benchmark/standard_win10_py312/summary.md) / [`results.json`](assets/benchmark/standard_win10_py312/results.json).
 
+
 ## Why it matters
 
-- **Real-time AI voice calls**: "dead air" often comes from extra CPU work before the first token is generated. Re-tokenizing long prompts is a common hidden cost.
-- **IDE copilots that feel half a beat late**: every completion/chat round may carry a long system prompt and project context; tokenizing from scratch adds latency and burns CPU.
-- **Mobile / on-device chat that heats up over time**: longer histories mean more repeated tokenization per turn, increasing CPU time, battery drain, and thermal throttling.
+* **AI Agents & ReAct loops**: One user command often triggers multiple "Think-Act-Observe" steps. Re-tokenizing massive tool outputs (JSON blobs, RAG results) at *every single step* creates compounding latency, making the agent feel slow and unresponsive.
+* **Real-time AI voice calls**: "dead air" often comes from extra CPU work before the first token is generated. Re-tokenizing long prompts is a common hidden cost.
+* **IDE copilots that feel half a beat late**: every completion/chat round may carry a long system prompt and project context; tokenizing from scratch adds latency and burns CPU.
+* **Mobile / on-device chat that heats up over time**: longer histories mean more repeated tokenization per turn, increasing CPU time, battery drain, and thermal throttling.
 
 FlashToken targets exactly these "long prefix reuse / append-only history" patterns.
 
